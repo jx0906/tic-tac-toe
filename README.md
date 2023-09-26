@@ -1,3 +1,5 @@
+Live version here: https://codepen.io/jx0906/pen/PoXQEbN
+
 ## Steps to Getting Started on a Browser Game (extracted from SEI Course Material Guidelines)
 
 1. **Analyze the app's functionality**: The app's features, from the user's point of view, should be described using _User Stories_.

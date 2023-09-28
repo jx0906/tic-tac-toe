@@ -199,7 +199,7 @@ for (let i = 0; i < rows.length; i++) {
 
             if (x.target.textContent === '' || null || undefined ) {
                 x.target.textContent = gameState.playerSym;
-                playerTurn.textContent = `over to ${gameState.turn} now!`;
+                playerTurn.textContent = `over to next Player now!`;
                 return;}
 
             if (x.target.textContent != '') {

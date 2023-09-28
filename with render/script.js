@@ -28,9 +28,9 @@ let stateBoard = [];
 let gameState = {
     stateBoard,
     turn: '',
-    playerSym: ''
+    playerSym: '',
+    winner: ''
 };
-
 
  // cached elements -This term emphasizes the idea of storing a reference to a DOM element in a variable to improve performance 
  // by avoiding repeated DOM queries. When you cache an element, you are essentially setting it as a variable.
@@ -66,13 +66,13 @@ const resetButton = document.getElementById('reset-button');
             //The cell element created in the inner loop is appended as a child to the row element, building the structure of the game board.
             row.appendChild(cell);
         }
-
         gameBoard.appendChild(row);
     }
 };
 
 function initialize() {
     gameBoard.innerHTML = ''; //clear board else it will just keep appending another 3x3 grid
+    gameState.stateBoard = []; // include this to reset state data aft a game ends (notice value is same as line 26 to retain the assignment)
     createBoard();
     statusBoard.textContent = "Game starts now!"
     playerTurn.textContent = "Player 1 first"
@@ -85,7 +85,7 @@ function initialize() {
     gameState.turn = player1.name; //note with obj, we need to refer their keys (eg, turn) to another object's key (eg, player1.name) instead of simply 
     // calling the object (eg, turn: player1) else the code wouldn't work
     gameState.playerSym = player1.sym;
-    setupStateBoard(); //no need to update gameState.stateBoard because it would have been updated in the function
+    setupStateBoard();
 }
 
 function setupStateBoard() {
@@ -114,7 +114,7 @@ for (let i = 0; i < rows.length; i++) {
     }
 
     // Add the row's data to the main stateBoard array by pushing the rArray info into stateBoard.
-    //stateBoard will now be a 2D array, where each element corresponds to data-row and data-col values of the r and c. 
+    // stateBoard will now be a 2D array, where each element corresponds to data-row and data-col values of the r and c. 
     // to access a specific element in the array, i will need to call "stateBoard[i][j]", where i and j= the value of the row and col i want to call.
     // stateBoard.push(rArray) -->  not changing stateBoard, only updating the stateBoard
     gameState.stateBoard.push(rArray);
@@ -125,40 +125,36 @@ for (let i = 0; i < rows.length; i++) {
 //  [ { row: 1, col: 0 }, { row: 1, col: 1 }, { row: 1, col: 2 } ],
 //  [ { row: 2, col: 0 }, { row: 2, col: 1 }, { row: 2, col: 2 } ]]
 
-// no render function here because my handleMove function already updates both state (eg through use of gameState.stateBoard elements) and UI (through DOM commands such as xx.textContent)
-    function handleMove(evt) {
+// event listener, handleMove() is to set the state; render is for UI
+// if your code uses DOM elements (eg, chosenCell.textContent), you are updating UI --> such commands should appear in the render function 
+// commands to update state info should be things like directly calling the variable, eg gameState.stateBoard 
+// event listener updates state ("data"), then state sends the info to UI through render function
+// while inefficient to have render in pure Javascript (because it will iterate (run repeatedly) to update every data point), the distinction to keep data in state and
+// pulling data to reflect in UI through render ensures that there will only be one set of data (ie, in state) to update whenever there are any changes. 
+// so we need render, but we need it to be executed efficiently, eg, React render!  
+
+    function handleMove(event) {
         let symToUpdate = gameState.playerSym;
-        const chosenCell = evt.target;
+        const chosenCell = event.target;
         
-        // check if chosen cell is empty
-        if (chosenCell.textContent == '') {
-            //update chosen cell with playerSym
-            chosenCell.textContent = symToUpdate;
-            //update gameState object, ie, stateBoard, turn, playerSym
-            // a. update stateBoard array by parsing the dataset.row and dataset.col attributes of the clicked cell to get it's index for updating stateBoard
-            // impt to do this so the cache is kept separately in the datastore ("stateBoard") and not the DOM object (ie, chosenCell through .textContent)
-            gameState.stateBoard[parseInt(chosenCell.dataset.row)][parseInt(chosenCell.dataset.col)] = symToUpdate;
-            // for debugging
-            // console.log(gameState.stateBoard);
+        //check for empty cell - if (gameState.stateBoard[parseInt(chosenCell.dataset.row)][parseInt(chosenCell.dataset.col)] == '' || null || undefined ) -- doesn't work. why
+        // update gameState object, ie, stateBoard, turn, playerSym
+        // a. update stateBoard array by parsing the dataset.row and dataset.col attributes of the clicked cell to get it's index for updating stateBoard
+        // impt to do this so the cache is kept separately in the datastore ("stateBoard") and not the DOM object (ie, chosenCell through .textContent)
+        gameState.stateBoard[parseInt(chosenCell.dataset.row)][parseInt(chosenCell.dataset.col)] = symToUpdate;
+        console.log(gameState.stateBoard);
+        //check for Winner
 
-            // b. update turn by checking current player name (ie, gameState.turn). back part starting from gameState.turn === player1.name represents the condition
-            // alr. ie, check if gameState.turn = player 1  
-            // "?" = if truthy, gameState.turn should = player 2 next, so set current player to player2.name; else, set to player1.name
-            gameState.turn = gameState.turn === player1.name ? player2.name : player1.name;
+        checkWin(symToUpdate);
+        renderMessage(event);
 
-            // c. update the playerSym as well
-            gameState.playerSym = gameState.playerSym === player1.sym ? player2.sym : player1.sym;
-            
-            // for debugging - to check if on track
-            playerTurn.textContent = `over to ${gameState.turn} now!`; 
+        // b. update turn by checking current player name (ie, gameState.turn). back part starting from gameState.turn === player1.name represents the condition
+        // alr. ie, check if gameState.turn = player 1  
+        // "?" = if truthy, gameState.turn should = player 2 next, so set current player to player2.name; else, set to player1.name
+        gameState.turn = gameState.turn === player1.name ? player2.name : player1.name;
 
-            //check for winner
-            checkWin(symToUpdate);
-
-        }
-        else { // ie, evt.target.value !== '' -- render; in render, call  win 
-            statusBoard.textContent = "The cell is already taken. Pls choose another one.";
-        }
+        // c. update the playerSym as well
+        gameState.playerSym = gameState.playerSym === player1.sym ? player2.sym : player1.sym;
     }
     
     function checkWin (pSym) {
@@ -184,14 +180,33 @@ for (let i = 0; i < rows.length; i++) {
 
             // Math.floor(a / 3) is used to calculate the row index for the corresponding cell in the stateBoard. Since there are 3
             // cells in each row (a 3x3 grid), dividing a by 3 and rounding down with Math.floor will give us the row index.
-            
             // a % 3 is used to calculate the column index for the corresponding cell in the stateBoard. The % (modulo) operator gives you the remainder when 
             // a is divided by 3, effectively cycling through values 0, 1, and 2, which correspond to the three columns in each row.
-            // for debugging - console.log(symbolA, symbolB, symbolC); 
+
+            // for debugging if winner cannot be declared, to check if the definitions for the symbols were correct - console.log(symbolA, symbolB, symbolC)
             if (symbolA === pSym && symbolB === pSym && symbolC === pSym) {
-                    statusBoard.textContent = `${gameState.turn} has won!`;
-                    playerTurn.textContent = ''; 
-                    return;} //need to exit if a winner is found, else the code will just execute row 195 and you will never see the winning statement in row 192
-        };
-        statusBoard.textContent = "No winner has been declared but we should be getting closer!";
+                gameState.winner = gameState.turn;
+                return;} //need to exit if a winner is found, else the code will just execute row 201 and 202 and you will never see the winning statement in row 198
+            
+            gameState.winner = ''; //'' = empty string; != null and != undefined!
+            };
+    }
+
+    function renderMessage(x) {
+        // no winner yet
+        if (gameState.winner === '' || null || undefined) {
+            statusBoard.textContent = "No winner has been declared but we should be getting closer!";
+
+            if (x.target.textContent === '' || null || undefined ) {
+                x.target.textContent = gameState.playerSym;
+                playerTurn.textContent = `over to ${gameState.turn} now!`;
+                return;}
+
+            if (x.target.textContent != '') {
+                statusBoard.textContent = "The cell is already taken. Pls choose another one.";
+                return}; //need to exit if a winner is found, else the code will just continue executing
+            }
+        x.target.textContent = gameState.playerSym;
+        statusBoard.textContent = `${gameState.winner} has won!`;
+        playerTurn.textContent = '';
     }

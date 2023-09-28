@@ -1,0 +1,57 @@
+*{
+    box-sizing: border-box;
+  }
+  
+  body {
+    margin: 0px;
+    font-family: Helvetica;
+    display: grid;
+    grid-template-rows: 1fr 4fr;
+    grid-template-columns: 300px auto; 
+    grid-template-areas:
+      "title title"
+      "instructions game";
+    background-color: white;
+  }
+
+#title {
+    grid-area: title;
+    align-self: center;
+    background-color: black;
+    color: pink;
+    text-align: center;
+
+  }
+
+#instructions {
+    grid-area: instructions;
+    padding: 0 0 0 10px;
+    color: black;
+    text-wrap: balance;
+  }
+
+  #game-area {
+    grid-area: game;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-content: space-around;
+    align-items: center;
+  }
+
+  .row {
+    display: flex;
+}
+
+  .cell {
+  width: 100px; /* Adjust the cell size as needed */
+  height: 100px;
+  border: 1px solid #000;
+  text-align: center;
+  line-height: 40px;
+  font-size: 40px;
+}
+
+#reset-button{
+  margin-top: 10px;
+}

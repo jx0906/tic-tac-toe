@@ -1,4 +1,6 @@
-Live version here: https://codepen.io/jx0906/pen/PoXQEbN
+Live version here:
+(no render) https://codepen.io/jx0906/pen/PoXQEbN
+(with render) https://codepen.io/jx0906/pen/qBLKXJy
 
 ## Steps to Getting Started on a Browser Game (extracted from SEI Course Material Guidelines)
 

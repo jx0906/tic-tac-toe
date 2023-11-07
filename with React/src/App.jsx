@@ -32,15 +32,16 @@ function App() {
   // scoring --- KIV till we are done with the other features
 
   useEffect(() => {
-    // by default the actions would run async in useEffect
-    // so to perform checkForTie  sequentially, we will need to use async+await
-    // JavaScript functions
-    const checkForTie = async () => {
-      if (!board.includes(null)) {
-        await setWinner("tie");
-        setMessage(`This game is a ${winner}!`);
-      }
-    };
+    // bif things will run async then you may need to do this, ie, define checkForTie, then use
+    // async+await JavaScript functions but in this case, not necessary cos useEffect doesn't run async
+    // by default and not accurate cos it will end up waiting for a winner to be set even though the results
+    // cld indeed be a tie (ie, no winner)
+    // const checkForTie = async () => {
+    //   if (!board.includes(null)) {
+    //     await setWinner("tie");
+    //     setMessage(`This game is a ${winner}!`);
+    //   }
+    // };
 
     for (let winArr of winningCombos) {
       if (
@@ -48,7 +49,12 @@ function App() {
       ) {
         setWinner(board[winArr[0]] === 1 ? "Purple" : "Orange");
         setMessage(`${winner} has won the game!`);
-      } else checkForTie;
+      }
+    }
+
+    if (!board.includes(null) && !winner) {
+      setWinner("tie");
+      setMessage(`This game is a ${winner}!`);
     }
   }, [board, winner]);
 

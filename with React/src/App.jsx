@@ -32,7 +32,7 @@ function App() {
   // scoring --- KIV till we are done with the other features
 
   useEffect(() => {
-    // bif things will run async then you may need to do this, ie, define checkForTie, then use
+    // if things will run async then you may need to do this, ie, define checkForTie, then use
     // async+await JavaScript functions but in this case, not necessary cos useEffect doesn't run async
     // by default and not accurate cos it will end up waiting for a winner to be set even though the results
     // cld indeed be a tie (ie, no winner)
